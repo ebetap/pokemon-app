@@ -42,12 +42,42 @@
         />
       </div>
 
-      <!-- popup -->
-      <Popup :open="openPopup">
-        <div class="catch-success">
-          <h1>Catch Success</h1>
+      <modal
+        name="catch-status"
+        class="modal-catch"
+        :clickToClose="false"
+      >
+        <div v-if="isCatchSuccess" class="success">
+          <h2>You get the pokemon!</h2>
+
+          <input 
+            v-model="pokemonNickName"
+            type="text"
+            class="pokemon-nickname"
+            placeholder="Pokemon Nickname"
+          >
+          
+          <Button 
+            label="Add to My Pokemon"
+            align="center"
+            :fullWidth="true"
+            :onClick="onPokemonAdd"
+          />
+
         </div>
-      </Popup>
+
+        <div v-else class="failed">
+          <h2>Failed to catch the pokemon!</h2>
+
+          <Button 
+            label="Close"
+            align="center"
+            :fullWidth="true"
+            :onClick="hide"
+          />
+
+        </div>
+      </modal>
     </div>
     
     <div v-else>
@@ -63,14 +93,14 @@ import Loading from '@/components/loading';
 import Button from '@/components/button';
 import CatchSuccess from '@/components/catch/success';
 import CatchFailed from '@/components/catch/failed';
-import Popup from '@/components/popup';
 
 export default {
   name: 'DetailPokemon',
-  data(){
+  data() {
     return {
-      openPopup: false,
-      isCatchSuccess: null
+      isCatchSuccess: '',
+      pokemonNickName: '',
+      validInput: null
     }
   },
   components: {
@@ -78,7 +108,6 @@ export default {
     Button,
     CatchSuccess,
     CatchFailed,
-    Popup,
   },
   computed: {
     ...mapState({
@@ -97,14 +126,46 @@ export default {
 
     catchPokemon() {
       if (Math.random() > 0.5) {
-        const { ADD_POKEMONS, pokemonDetail } = this;
-        this.openPopup = true
-        this.isCatchSuccess = true
-        // ADD_POKEMONS(pokemonDetail);
+        this.isCatchSuccess = true;
       } else {
-        alert('failed');
+        this.isCatchSuccess = false;       
+      }
+
+      this.show();
+    },
+
+    catchPokemonSuccess() {
+      const { pokemonDetail } = this;
+
+      let pokemonToSave = {
+        ...pokemonDetail,
+        nick_name: this.pokemonNickName,
+        unique_id: '_' + Math.random().toString(36).substr(2, 9)
+      }
+
+      this.ADD_POKEMONS(pokemonToSave);
+
+      this.$router.push('/my-pokemon');
+    },
+
+    onPokemonAdd() {
+      const { catchPokemonSuccess, pokemonNickName } = this;
+      const inputValid = pokemonNickName.length > 0;
+
+      if (inputValid){
+        catchPokemonSuccess();
+      } else {
+        this.validInput = false;
       }
     },
+
+    show () {
+      this.$modal.show('catch-status');
+    },
+
+    hide () {
+      this.$modal.hide('catch-status');
+    }
   },
   created() {
     const { query } = this.$route;
@@ -113,6 +174,46 @@ export default {
   }
 }
 </script>
+
+<style>
+.v--modal-box {
+  top: 50%!important;
+  left: 50%!important;
+  width: 100%!important;
+  height: 240px!important;
+  transform: translate(-50%, 65%);
+  padding: 25px;
+}
+
+.modal-catch .success,
+.modal-catch .failed {
+  text-align: center;
+}
+
+.modal-catch .failed h2 {
+  margin: 30px 0;
+}
+
+.modal-catch h2 {
+  color: #0d4a68;
+}
+
+.modal-catch .pokemon-nickname {
+  width: 100%;
+  border: 1px solid #0d4a68;
+  font-size: 17px;
+  margin: 25px 0;
+  padding: 15px;
+  border-radius: 5px;
+  color: #0d4a68;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.modal-catch .pokemon-nickname:focus {
+  outline: none;
+}
+</style>
 
 <style scoped>
   .d-flex {

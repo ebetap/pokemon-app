@@ -1,14 +1,14 @@
 <template>
   <div class="wrapper">
     <h2 class="title">My Pokemon</h2>
-    <MyPokemonList :data="myPokemons" :onClose="(id) => removePokemon(id)" />
+    <MyPokemonList :data="myPokemons" :onRemove="(list) => removePokemon(list)" />
   </div>
 </template>
 
 <script>
 import MyPokemonList from '@/components/list/my-list';
 
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   name: 'myListPokemon',
@@ -21,8 +21,17 @@ export default {
     }),
   },
   methods: {
-    removePokemon(id) {
-      console.log('remove pokemon', id);
+    ...mapMutations({
+      RELEASE_POKEMON: 'RELEASE_POKEMON',
+    }),
+
+    removePokemon(pokemon) {
+      let bothId = {
+        id: pokemon.id,
+        unique_id: pokemon.unique_id
+      }
+
+      this.RELEASE_POKEMON(bothId);
     },
   }
 }

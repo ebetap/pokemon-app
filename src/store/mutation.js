@@ -14,7 +14,7 @@ const mutations = {
         let matchData = myPokemonList.filter(myPokemon => myPokemon.id === id);
         
         if (matchData.length > 0) {
-          pokemon.count = matchData[0].count;
+          pokemon.count = matchData.length;
         } else {
           pokemon.count = 0;
         }
@@ -35,7 +35,7 @@ const mutations = {
     } else {
       pokemonDetail = {
         ...data,
-        nickname: '',
+        nick_name: '',
         count: 0,
       }
     }
@@ -66,19 +66,33 @@ const mutations = {
     const isFound = currentPokemons.filter(pokemon => pokemon.id === data.id);
 
     if (isFound.length > 0) {
+      state.myPokemons.push({...data, count: isFound.length +1 });
+
+      const updateCount = currentPokemons.filter(pokemon => pokemon.id === data.id);
+
       currentPokemons = currentPokemons.map(currPokemon => {
-        if(data.id === currPokemon.id) return { ...currPokemon, count: currPokemon.count + 1 }
+        if(data.id === currPokemon.id) return { ...currPokemon, count: updateCount.length }
         return currPokemon;
       });
+
       state.myPokemons = currentPokemons;
+      
     } else {
       state.myPokemons.push({ ...data, count: 1});
     }
   },
 
-  RELEASE_POKEMON(state, id) {
-    const myNewPokemons = state.myPokemons.filter(pokemon => pokemon.id !== id);
-    state.myPokemon = myNewPokemons;
+  RELEASE_POKEMON(state, bothId) {
+    let currentPokemons = state.myPokemons;
+    let myNewPokemons = currentPokemons.filter(pokemon => pokemon.unique_id !== bothId.unique_id);
+    const updateCount = myNewPokemons.filter(pokemon => pokemon.id === bothId.id);
+
+    myNewPokemons = myNewPokemons.map(currPokemon => {
+      if(bothId.id === currPokemon.id) return { ...currPokemon, count: updateCount.length }
+      return currPokemon;
+    });
+
+    state.myPokemons = myNewPokemons;
   }
 }
 

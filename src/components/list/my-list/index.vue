@@ -7,10 +7,11 @@
     >
       <div class="info">
         <h3 class="pokemon-name">{{list.name}}</h3>
+        <h5 class="nick-name">Nickname : {{list.nick_name}}</h5>
         <h5 class="own-total">Owned total : {{list.count}}</h5>
      </div>
 
-     <button class="close" @click="onClose(list.id)">Remove</button>
+     <button class="close" @click="onRemove(list)">Remove</button>
     </div>
   </div>  
 </template>
@@ -19,7 +20,7 @@
 export default {
   props: {
     data: { type: Array, required: true },
-    onClose: { type: Function }
+    onRemove: { type: Function }
   },
   name: 'MyList'
 }
